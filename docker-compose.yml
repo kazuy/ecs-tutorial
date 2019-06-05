@@ -12,7 +12,7 @@ services:
       driver: awslogs
       options:
         awslogs-group: tutorial-wordpress
-        awslogs-region: us-east-1
+        awslogs-region: ap-northeast-1
         awslogs-stream-prefix: wordpress
   mysql:
     image: mysql:5.7
@@ -24,6 +24,6 @@ services:
       driver: awslogs
       options:
         awslogs-group: tutorial-mysql
-        awslogs-region: us-east-1
+        awslogs-region: ap-northeast-1
         awslogs-stream-prefix: mysql
 

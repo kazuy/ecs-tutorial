@@ -1,0 +1,36 @@
+version: 2.1
+jobs:
+  deploy:
+    docker:
+      - image: alpine
+    steps:
+      - checkout
+      - run:
+          name: Install Amazon ECS-CLI
+          command: |
+            apk --no-cache add curl
+            curl -o /usr/local/bin/ecs-cli https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest
+            chmod +x /usr/local/bin/ecs-cli
+            ecs-cli --version
+      - run:
+          name: Configure Amazon ECS-CLI profile
+          command: |
+            ecs-cli configure profile --profile-name default --access-key $AWS_ACCESS_KEY_ID --secret-key $AWS_SECRET_ACCESS_KEY
+      - run:
+          name: Configure Amazon ECS-CLI cluster
+          command: |
+            ecs-cli configure --cluster $CIRCLE_PROJECT_REPONAME-cluster --region $AWS_REGION --default-launch-type EC2 --config-name default
+      - run:
+          name: Create Cluster
+          command: |
+            ecs-cli up --keypair $AWS_KEY_PAIR --capability-iam --instance-type t2.micro --force --verbose
+            sleep 3m
+      - run:
+          name: Create Service
+          command: |
+            ecs-cli compose service up --create-log-groups --force-deployment
+
+workflows:
+  build:
+    jobs:
+      - deploy
